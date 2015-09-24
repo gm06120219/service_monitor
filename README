@@ -2,5 +2,14 @@ README
 
 These python scripts are used to monitor the Ubuntu Server Service.
 
-How to use:
+How it works:
+1.get the result of ubuntu command: ps aux
+2.filtering the keyword of the service like: "apache"
+3.if it's still have data after filtering, the service was alive, else send e-mail with the log file to your e-mail address.
 
+How to use it:
+$sudo vi /etc/smonitor
+start on started networking
+exec sh -c "python /your_unzip_directory/monitor.py > /var/log/smonitor/log.log 2>&1"
+$mkdir /var/log/smonitor
+$sudo service smonitor start

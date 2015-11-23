@@ -13,7 +13,7 @@ import mmail
 process_list = json.loads(
     '[{"name":"vlink", "log":"/var/log/vlink/access.log"},\
     {"name":"teleport", "log":"/var/log/teleport/teleport.log"},\
-    {"name":"surveillance", "log":"/var/log/surveillance/access.log"},\
+    {"name":"surveillance", "log":"/var/log/surveillance/access.log, /var/log/surveillance/surveillance.log"},\
     {"name":"apn-publish", "log":"/var/log/apn/access.log"}]')
 
 host = open('/etc/hostname').read().strip('\n')
@@ -39,15 +39,8 @@ while True:
             print("[error]process " + process_name + " was dead.")
             sys.stdout.flush()
 
-            log = process["log"]
-            if not os.path.exists(log):
-                mmail.send_mail(subject + ' ' + host, None)
-                print("[debug]send mail with no log success.")
-                sys.stdout.flush()
-            else:
-                mmail.send_mail(subject + ' ' + host, log)
-                print("[debug]send mail success.")
-                sys.stdout.flush()
+            logs = process["log"].split(',')
+            mmail.send_mail_with_files(subject + ' ' + host, logs)
 
             os.system('service ' + process_name + ' restart')
             print("[debug]process " + process_name + " was restarted.")

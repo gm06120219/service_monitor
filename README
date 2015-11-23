@@ -13,3 +13,12 @@ start on started networking
 exec sh -c "python /your_unzip_directory/monitor.py > /var/log/smonitor/log.log 2>&1"
 $mkdir /var/log/smonitor
 $sudo service smonitor start
+
+
+Config file
+-----------------------------------
+[monitor]
+# item of monitor
+add service information format like "service_name = service_log_file_path"
+For example:
+"service_name1 = /var/log/service_name1.log"

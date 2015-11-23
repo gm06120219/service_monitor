@@ -3,23 +3,24 @@
 
 import os
 import smtplib
-import mimetypes
+import ConfigParser
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
-mailto_list = ["mailto@stmp.com"]
-# mail_host = "smtp.163.com"  # 设置服务器
-mail_host = "smtp.exmail.qq.com"  # 设置服务器
-mail_user = "noreply"  # 用户名
-mail_pass = "**********"  # 口令
-mail_postfix = "vlintech.com"  # 发件箱的后缀
+cf = ConfigParser.ConfigParser()
+cf.read("/var/www/nginx-default/operation/ServiceMonitor/conf.ini")
+
+mail_to = cf.get("mail", "mail_to").split(",")
+mail_host = cf.get("mail", "mail_host")
+mail_user = cf.get("mail", "mail_user")
+mail_pass = cf.get("mail", "mail_pass")
+mail_postfix = cf.get("mail", "mail_postfix")
 
 
 def send_mail(subject, filename=None):
-    to_list = mailto_list
-    me = mail_user + "@" + mail_postfix
+    to_list = mail_to
+    me = mail_to + "@" + mail_postfix
     msg = MIMEMultipart()
     msg['Subject'] = subject
     msg['From'] = me
@@ -45,7 +46,7 @@ def send_mail(subject, filename=None):
         return False
 
 def send_mail_with_files(subject, files=None):
-    to_list = mailto_list
+    to_list = mail_to
     me = mail_user + "@" + mail_postfix
     content = ''
 
@@ -100,6 +101,6 @@ pass
 
 if __name__ == "__main__":
     if send_mail_with_files("test2", ["/Users/liguangming/Desktop/3.txt", "/Users/liguangming/Desktop/2.txt"]):
-        print "发送成功！"
+        print "send mail success."
     else:
-        print "发送失败！"
+        print "send mail failure"

@@ -18,7 +18,18 @@ $sudo service smonitor start
 Config file
 -----------------------------------
 [monitor]
-# item of monitor
+# service item of monitor
 add service information format like "service_name = service_log_file_path"
+PS: Please don't send too large log file.
+
 For example:
-"service_name1 = /var/log/service_name1.log"
+"nginx = /var/log/nginx/access.log"
+
+[disk]
+# file system
+add file system item for monitor its capacity
+
+[loop]
+# sleep time for check loop
+
+

@@ -8,8 +8,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
+config = '/var/www/nginx-default/operation/ServiceMonitor/conf.ini'
+
 cf = ConfigParser.ConfigParser()
-cf.read("/var/www/nginx-default/operation/ServiceMonitor/conf.ini")
+cf.read(config)
 
 mail_to = cf.get("mail", "mail_to").split(",")
 mail_host = cf.get("mail", "mail_host")
@@ -20,7 +22,7 @@ mail_postfix = cf.get("mail", "mail_postfix")
 
 def send_mail(subject, filename=None):
     to_list = mail_to
-    me = mail_to + "@" + mail_postfix
+    me = mail_user + "@" + mail_postfix
     msg = MIMEMultipart()
     msg['Subject'] = subject
     msg['From'] = me
@@ -63,7 +65,7 @@ def send_mail_with_files(subject, files=None):
             pass
 
     else:
-        content = content + 'no attachment.'
+        content = content + ' no attachment.'
         pass
 
     print(content)
@@ -73,15 +75,18 @@ def send_mail_with_files(subject, files=None):
     msg['To'] = ";".join(to_list)
 
 
-    for file in temp_file_list:
-        file = file.strip()
-        f = open(file, 'r')
-        fx = MIMEApplication(f.read())
-        f.close()
-        fx.add_header(
-            'Content-Disposition', 'attachment', filename=os.path.basename(file))
-        msg.attach(fx)
+    if files != None:
+        for file in temp_file_list:
+            file = file.strip()
+            f = open(file, 'r')
+            fx = MIMEApplication(f.read())
+            f.close()
+            fx.add_header(
+                'Content-Disposition', 'attachment', filename=os.path.basename(file))
+            msg.attach(fx)
+            pass
         pass
+    
     msg.attach(MIMEText(content, 'plain', 'utf-8'))
 
     try:

@@ -4,11 +4,13 @@
 import os
 import smtplib
 import ConfigParser
+import ffile
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
-config = '/var/www/nginx-default/operation/ServiceMonitor/conf.ini'
+# config = '/var/www/nginx-default/operation/ServiceMonitor/conf.ini'
+config = './conf.ini'
 
 cf = ConfigParser.ConfigParser()
 cf.read(config)
@@ -19,7 +21,6 @@ mail_user = cf.get("mail", "mail_user")
 mail_pass = cf.get("mail", "mail_pass")
 mail_postfix = cf.get("mail", "mail_postfix")
 
-
 def send_mail(subject, filename=None):
     to_list = mail_to
     me = mail_user + "@" + mail_postfix
@@ -28,10 +29,11 @@ def send_mail(subject, filename=None):
     msg['From'] = me
     msg['To'] = ";".join(to_list)
 
-    if filename != None and os.path.exists(filename):
-        f = open(filename, 'r')
-        fx = MIMEApplication(f.read())
-        f.close()
+    filename = filename.strip()
+    if filename != None and os.path.exists(filename) and ffile.FileSizeCheck(filename):
+        file_handle = open(filename, 'r')
+        fx = MIMEApplication(file_handle.read())
+        file_handle.close()
         fx.add_header(
             'Content-Disposition', 'attachment', filename=os.path.basename(filename))
         msg.attach(fx)
@@ -76,14 +78,16 @@ def send_mail_with_files(subject, files=None):
 
 
     if files != None:
-        for file in temp_file_list:
-            file = file.strip()
-            f = open(file, 'r')
-            fx = MIMEApplication(f.read())
-            f.close()
-            fx.add_header(
-                'Content-Disposition', 'attachment', filename=os.path.basename(file))
-            msg.attach(fx)
+        for filename in temp_file_list:
+            if ffile.FileSizeCheck(filename):
+                filename = filename.strip()
+                file_handle = open(filename, 'r')
+                fx = MIMEApplication(file_handle.read())
+                file_handle.close()
+                fx.add_header(
+                    'Content-Disposition', 'attachment', filename=os.path.basename(filename))
+                msg.attach(fx)
+                pass
             pass
         pass
     

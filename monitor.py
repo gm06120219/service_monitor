@@ -66,6 +66,20 @@ def CheckService(process_list):
         pass
     pass
 
+def CheckMem(threshold):
+    cmd = "free -m | grep Mem | awk '{print $4}'"
+    output = os.popen(cmd)
+    outStr = output.read()
+    free_size = int(outStr)
+    if free_size < threshold:
+        print "[ERROR]Mem Check OK."
+        mmail.send_mail_with_files('Mem out of range. Please check it.' + host)
+        pass
+    else:
+        print "[INFO]Mem Check OK."
+        pass
+
+
 if __name__ == "__main__": 
     cf = ConfigParser.ConfigParser()
     cf.read(config)
@@ -73,17 +87,28 @@ if __name__ == "__main__":
     time_sleep = int(cf.get('loop', 'time'))
     process_list = cf.items("monitor")
     filesystem_list = cf.get('disk','filesystem').split(',')
+    threshold = cf.get('mem', 'threshold')
 
-    while True:
-        # print time
-        t = time.strftime("%a %b %d %H:%M:%S %Y", time.localtime())
-        print('[Time]' + t)
-        sys.stdout.flush()
+    # add except process by liguangming 
+    try:
+        while True:
+            # print time
+            t = time.strftime("%a %b %d %H:%M:%S %Y", time.localtime())
+            print('[Time]' + t)
+            sys.stdout.flush()
 
-        # check service
-        CheckService(process_list)
+            # check service
+            CheckService(process_list)
 
-        # check the capacity of hard disk
-        CheckDiskCapacity(filesystem_list)
+            # check the capacity of hard disk
+            CheckDiskCapacity(filesystem_list)
 
-        time.sleep(time_sleep)
+            # check mem
+            CheckMem(threshold)
+
+            time.sleep(time_sleep)
+    except IOError:
+       mmail.send_mail('IDC service monitor crash by IOError. ' + host)
+    else:
+       mmail.send_mail('IDC service monitor crash by Other Error. ' + host)
+    

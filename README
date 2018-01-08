@@ -8,7 +8,7 @@ How it works:
 3.if it's still have data after filtering, the service was alive, else send e-mail with the log file to your e-mail address.
 
 How to use it:
-$sudo vi /etc/smonitor
+$sudo vi /etc/init/smonitor.conf
 start on started networking
 exec sh -c "python /your_unzip_directory/monitor.py > /var/log/smonitor/log.log 2>&1"
 $mkdir /var/log/smonitor
